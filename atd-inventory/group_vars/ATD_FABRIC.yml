@@ -15,7 +15,6 @@ spine:
     platform: vEOS-LAB
     bgp_as: 65001
     loopback_ipv4_pool: 192.0.255.0/24
-    loopback_ipv6_pool: 2001:db8:c01d:c01a::/64
     bgp_defaults:
       - 'no bgp default ipv4-unicast'
       - 'distance bgp 20 200 200'
