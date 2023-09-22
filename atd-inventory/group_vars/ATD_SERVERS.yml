@@ -4,29 +4,22 @@ port_profiles:
     mode: access
     vlans: "110"
 
+  - profile: qos
+    parent_profile: TENANT_A
+    qos_profile: Campus-QoS-DSCP
+    structured_config:
+      qos:
+        trust: disabled
 
 servers:
-  - name: s1-host1
+
+  - name: s1-host11
     rack: pod1
     adapters:
-      - endpoint_ports: [Eth1, Eth2]
-        switch_ports: [Ethernet4, Ethernet4]
-        switches: [s1-leaf1, s1-leaf2]
-        profile: TENANT_A
-        port_channel:
-          description: PortChannel
-          mode: active
-
-  - name: s1-host2
-    rack: pod2
-    adapters:
-      - endpoint_ports: [Eth1, Eth2]
-        switch_ports: [Ethernet4, Ethernet4]
-        switches: [s1-leaf3, s1-leaf4]
-        profile: TENANT_A
-        port_channel:
-          description: PortChannel
-          mode: active
+      - endpoint_ports: [Eth1]
+        switch_ports: [Ethernet11]
+        switches: [s1-leaf1]
+        profile: qos
 
 # Sample network port config as access ports
 # For multiport port-channel setup, please use the connected endpoint example above

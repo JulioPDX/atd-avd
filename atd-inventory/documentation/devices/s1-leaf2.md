@@ -39,12 +39,17 @@
 - [Filters](#filters)
   - [Prefix-lists](#prefix-lists)
   - [Route-maps](#route-maps)
+- [ACL](#acl)
+  - [IP Access-lists](#ip-access-lists)
 - [VRF Instances](#vrf-instances)
   - [VRF Instances Summary](#vrf-instances-summary)
   - [VRF Instances Device Configuration](#vrf-instances-device-configuration)
 - [Virtual Source NAT](#virtual-source-nat)
   - [Virtual Source NAT Summary](#virtual-source-nat-summary)
   - [Virtual Source NAT Configuration](#virtual-source-nat-configuration)
+- [Quality Of Service](#quality-of-service)
+  - [QOS Class Maps](#qos-class-maps)
+  - [QOS Policy Maps](#qos-policy-maps)
 
 ## Management
 
@@ -236,7 +241,6 @@ vlan 4094
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | Channel-Group |
 | --------- | ----------- | ---- | ----- | ----------- | ----------- | ------------- |
 | Ethernet1 | MLAG_PEER_s1-leaf1_Ethernet1 | *trunk | *- | *- | *['LEAF_PEER_L3', 'MLAG'] | 1 |
-| Ethernet4 | s1-host1_Eth2 | *access | *110 | *- | *- | 4 |
 | Ethernet6 | MLAG_PEER_s1-leaf1_Ethernet6 | *trunk | *- | *- | *['LEAF_PEER_L3', 'MLAG'] | 1 |
 
 *Inherited from Port-Channel Interface
@@ -271,11 +275,6 @@ interface Ethernet3
    no switchport
    ip address 172.30.255.7/31
 !
-interface Ethernet4
-   description s1-host1_Eth2
-   no shutdown
-   channel-group 4 mode active
-!
 interface Ethernet6
    description MLAG_PEER_s1-leaf1_Ethernet6
    no shutdown
@@ -291,7 +290,6 @@ interface Ethernet6
 | Interface | Description | Type | Mode | VLANs | Native VLAN | Trunk Group | LACP Fallback Timeout | LACP Fallback Mode | MLAG ID | EVPN ESI |
 | --------- | ----------- | ---- | ---- | ----- | ----------- | ------------| --------------------- | ------------------ | ------- | -------- |
 | Port-Channel1 | MLAG_PEER_s1-leaf1_Po1 | switched | trunk | - | - | ['LEAF_PEER_L3', 'MLAG'] | - | - | - | - |
-| Port-Channel4 | s1-host1_PortChannel | switched | access | 110 | - | - | - | - | 4 | - |
 
 #### Port-Channel Interfaces Device Configuration
 
@@ -304,13 +302,6 @@ interface Port-Channel1
    switchport mode trunk
    switchport trunk group LEAF_PEER_L3
    switchport trunk group MLAG
-!
-interface Port-Channel4
-   description s1-host1_PortChannel
-   no shutdown
-   switchport
-   switchport access vlan 110
-   mlag 4
 ```
 
 ### Loopback Interfaces
@@ -749,6 +740,27 @@ route-map RM-MLAG-PEER-IN permit 10
    set origin incomplete
 ```
 
+## ACL
+
+### IP Access-lists
+
+#### IP Access-lists Configuration
+
+```eos
+ip access-list storage-traffic
+   counters per-entry
+   10 permit ip 192.168.120.0/24 any
+ip access-list db-traffic
+   counters per-entry
+   10 permit ip 192.168.110.0/24 any
+ip access-list web-traffic
+   counters per-entry
+   10 permit ip 192.168.100.0/24 any
+ip access-list compute-traffic
+   counters per-entry
+   10 permit ip 192.168.90.0/24 any
+```
+
 ## VRF Instances
 
 ### VRF Instances Summary
@@ -777,4 +789,75 @@ vrf instance Tenant_A_OP_Zone
 ```eos
 !
 ip address virtual source-nat vrf Tenant_A_OP_Zone address 10.255.1.4
+```
+
+## Quality Of Service
+
+### QOS Class Maps
+
+#### QOS Class Maps Summary
+
+| Name | Field | Value |
+| ---- | ----- | ----- |
+| compute-class | acl | compute-traffic |
+| db-class | acl | db-traffic |
+| storage-class | acl | storage-traffic |
+| web-class | acl | web-traffic |
+
+#### Class-maps Device Configuration
+
+```eos
+!
+class-map type qos match-any compute-class
+   match ip access-group compute-traffic
+!
+class-map type qos match-any db-class
+   match ip access-group db-traffic
+!
+class-map type qos match-any storage-class
+   match ip access-group storage-traffic
+!
+class-map type qos match-any web-class
+   match ip access-group web-traffic
+```
+
+### QOS Policy Maps
+
+#### QOS Policy Maps Summary
+
+**Campus-QoS-DSCP**
+
+| class | Set | Value |
+| ----- | --- | ----- |
+| storage-class | dscp | 40 |
+| storage-class | traffic_class | 5 |
+| db-class | dscp | 32 |
+| db-class | traffic_class | 4 |
+| web-class | dscp | 24 |
+| web-class | traffic_class | 3 |
+| compute-class | dscp | 16 |
+| compute-class | traffic_class | 2 |
+
+#### QOS Policy Maps configuration
+
+```eos
+!
+policy-map type quality-of-service Campus-QoS-DSCP
+   class storage-class
+      set dscp 40
+      set traffic-class 5
+   !
+   class db-class
+      set dscp 32
+      set traffic-class 4
+   !
+   class web-class
+      set dscp 24
+      set traffic-class 3
+   !
+   class compute-class
+      set dscp 16
+      set traffic-class 2
+   !
+   class class-default
 ```

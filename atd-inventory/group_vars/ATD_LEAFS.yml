@@ -1,0 +1,84 @@
+---
+ip_access_lists:
+
+  - name: storage-traffic
+    counters_per_entry: true
+    entries:
+      - sequence: 10
+        action: permit
+        protocol: ip
+        source: 192.168.120.0/24
+        destination: any
+
+  - name: db-traffic
+    counters_per_entry: true
+    entries:
+      - sequence: 10
+        action: permit
+        protocol: ip
+        source: 192.168.110.0/24
+        destination: any
+
+  - name: web-traffic
+    counters_per_entry: true
+    entries:
+      - sequence: 10
+        action: permit
+        protocol: ip
+        source: 192.168.100.0/24
+        destination: any
+
+  - name: compute-traffic
+    counters_per_entry: true
+    entries:
+      - sequence: 10
+        action: permit
+        protocol: ip
+        source: 192.168.90.0/24
+        destination: any
+
+class_maps:
+  qos:
+
+    - name: storage-class
+      ip:
+        access_group: storage-traffic
+
+    - name: db-class
+      ip:
+        access_group: db-traffic
+
+    - name: web-class
+      ip:
+        access_group: web-traffic
+
+    - name: compute-class
+      ip:
+        access_group: compute-traffic
+
+policy_maps:
+  qos:
+    - name: Campus-QoS-DSCP
+      classes:
+
+        - name: storage-class
+          set:
+            dscp: 40
+            traffic_class: 5
+
+        - name: db-class
+          set:
+            dscp: 32
+            traffic_class: 4
+
+        - name: web-class
+          set:
+            dscp: 24
+            traffic_class: 3
+
+        - name: compute-class
+          set:
+            dscp: 16
+            traffic_class: 2
+
+        - name: class-default
