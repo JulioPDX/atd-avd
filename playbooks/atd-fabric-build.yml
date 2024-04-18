@@ -22,7 +22,6 @@
       import_role:
         name: eos_cli_config_gen
 
----
 - name: Configuration deployment with CVP
   hosts: cv_servers
   connection: local
