@@ -9,11 +9,6 @@
     fabric_dir_name: "{{fabric_name}}"
   tasks:
 
-    # - name: run python installs
-    #   ansible.builtin.command: pip3 install -r ../requirements.txt
-    #   delegate_to: localhost
-    #   run_once: true
-
     - name: Generate intended variables
       import_role:
         name: eos_designs
