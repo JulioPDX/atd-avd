@@ -4,7 +4,7 @@ all:
     cv_servers:
       hosts:
         cvp:
-          ansible_host: aap-avd-1-8a8be448-eos.topo.testdrive-dev.arista.com
+          ansible_host: aap-avd-1-d25f5696-eos.topo.testdrive-dev.arista.com
           cv_collection: v3
     ATD_LAB:
       children:
