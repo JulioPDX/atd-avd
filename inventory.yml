@@ -4,7 +4,7 @@ all:
     cv_servers:
       hosts:
         cvp:
-          ansible_host: aap-avd-1-d25f5696-eos.topo.testdrive-dev.arista.com
+          ansible_host: test-aap-1-8fdf0054-eos.topo.testdrive-dev.arista.com
           cv_collection: v3
     ATD_LAB:
       children:
@@ -56,3 +56,4 @@ all:
     ansible_python_interpreter: $(which python3)
     avd_data_conversion_mode: error
     avd_data_validation_mode: error
+    stuff: bob

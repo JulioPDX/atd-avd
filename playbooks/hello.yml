@@ -1,0 +1,10 @@
+---
+- name: Manage Arista EOS EVPN/VXLAN Configuration
+  hosts: ATD_FABRIC
+  connection: local
+  gather_facts: false
+  tasks:
+
+    - name: Generate intended variables
+      debug:
+        msg: "hello {{ stuff }}"
