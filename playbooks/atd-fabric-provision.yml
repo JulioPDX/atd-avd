@@ -1,6 +1,6 @@
 ---
-- name: Configuration deployment with CVP
-  hosts: cv_servers
+- name: Configuration deployment with CV
+  hosts: ATD_FABRIC
   connection: local
   gather_facts: false
   collections:
@@ -8,9 +8,7 @@
   tasks:
     - name: Provision CVP with AVD configuration
       import_role:
-        name: eos_config_deploy_cvp
+        name: cv_deploy
       vars:
-        container_root: 'ATD_FABRIC'
-        configlets_prefix: 'AVD'
-        state: present
-        execute_tasks: true
+        cv_server: aap-1-6495533d-eos.topo.testdrive.arista.com
+        cv_token: "{{ CV_TOKEN }}"
