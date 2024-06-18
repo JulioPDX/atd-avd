@@ -43,7 +43,7 @@ all:
 
   vars:
     ansible_user: arista
-    ansible_password: "{{ lab_pass }}"
+    # ansible_password: "{{ lab_pass }}"
     ansible_network_os: arista.eos.eos
     # Configure privilege escalation
     ansible_become: true
