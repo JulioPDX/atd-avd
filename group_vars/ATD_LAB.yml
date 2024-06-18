@@ -58,7 +58,3 @@ aaa_server_groups:
     type: radius
     servers:
       - server: 192.168.0.1
-
-# aaa group server radius atds
-#    server 192.168.0.1
-# !
