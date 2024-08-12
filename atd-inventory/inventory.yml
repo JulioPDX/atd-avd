@@ -44,7 +44,7 @@ all:
   vars:
     ansible_user: arista
     ansible_password: "{{ user_pass| arista.avd.default(lookup('env', 'LABPASSPHRASE')) }}"
-    user_pass: arista0y67
+    user_pass: aristamshl
     ansible_network_os: arista.eos.eos
     # Configure privilege escalation
     ansible_become: true

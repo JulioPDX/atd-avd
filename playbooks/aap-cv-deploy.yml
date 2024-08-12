@@ -21,6 +21,6 @@
       import_role:
         name: cv_deploy
       vars:
-        cv_server: aap-1-c05e22ce-eos.topo.testdrive.arista.com
+        cv_server: aap-lab-1-701d407d-eos.topo.testdrive.arista.com
         cv_token: "{{ lab_token }}"
         cv_run_change_control: true
