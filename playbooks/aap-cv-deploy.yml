@@ -17,10 +17,10 @@
       import_role:
         name: eos_cli_config_gen
 
-    # - name: Provision CV with AVD configuration
-    #   import_role:
-    #     name: cv_deploy
-    #   vars:
-    #     cv_server: aap-1-9740a979-eos.topo.testdrive-dev.arista.com
-    #     cv_token: "{{ lab_token }}"
-    #     cv_run_change_control: true
+    - name: Provision CV with AVD configuration
+      import_role:
+        name: cv_deploy
+      vars:
+        cv_server: aap-1-9740a979-eos.topo.testdrive-dev.arista.com
+        cv_token: "{{ lab_token }}"
+        cv_run_change_control: true
