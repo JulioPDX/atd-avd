@@ -97,6 +97,23 @@ router_bgp:
     neighbors:
     - ip_address: 10.255.251.5
       peer_group: MLAG-IPv4-UNDERLAY-PEER
+  - name: Tenant_B_OP_Zone
+    router_id: 192.0.255.5
+    rd: 192.0.255.5:20
+    route_targets:
+      import:
+      - address_family: evpn
+        route_targets:
+        - '20:20'
+      export:
+      - address_family: evpn
+        route_targets:
+        - '20:20'
+    redistribute_routes:
+    - source_protocol: connected
+    neighbors:
+    - ip_address: 10.255.251.5
+      peer_group: MLAG-IPv4-UNDERLAY-PEER
   vlan_aware_bundles:
   - name: Tenant_A_OP_Zone
     rd: 192.0.255.5:10
@@ -115,12 +132,30 @@ router_bgp:
     redistribute_routes:
     - learned
     vlan: '160'
+  - name: Tenant_B_OP_Zone
+    rd: 192.0.255.5:20
+    route_targets:
+      both:
+      - '20:20'
+    redistribute_routes:
+    - learned
+    vlan: 210-211
 static_routes:
 - vrf: default
   destination_address_prefix: 0.0.0.0/0
   gateway: 192.168.0.1
 service_routing_protocols_model: multi-agent
 ip_routing: true
+daemon_terminattr:
+  cvaddrs:
+  - 192.168.0.5:9910
+  cvauth:
+    method: token
+    token_file: /tmp/token
+  cvvrf: default
+  smashexcludes: ale,flexCounter,hardware,kni,pulse,strata
+  ingestexclude: /Sysdb/cell/1/agent,/Sysdb/cell/2/agent
+  disable_aaa: true
 vlan_internal_order:
   allocation: ascending
   range:
@@ -137,11 +172,19 @@ spanning_tree:
   - id: '0'
     priority: 16384
   no_spanning_tree_vlan: 4093-4094
+local_users:
+- name: arista
+  privilege: 15
+  role: network-admin
+  sha512_password: $6$arista$JV51Nh7UfQKs71i6Z0KMHBA0Sjv4NhSN3MaiOPsyaFm8kubWpiX9o2nT7depFk2NTO5VvFhigJInD/e6r6Tui0
 vrfs:
 - name: default
   ip_routing: false
 - name: Tenant_A_OP_Zone
   tenant: Tenant_A
+  ip_routing: true
+- name: Tenant_B_OP_Zone
+  tenant: Tenant_B
   ip_routing: true
 management_interfaces:
 - name: Management0
@@ -177,6 +220,17 @@ vlans:
 - id: 160
   name: Tenant_A_VMOTION
   tenant: Tenant_A
+- id: 210
+  name: Tenant_B_OP_Zone_1
+  tenant: Tenant_B
+- id: 211
+  name: Tenant_B_OP_Zone_2
+  tenant: Tenant_B
+- id: 3019
+  name: MLAG_iBGP_Tenant_B_OP_Zone
+  trunk_groups:
+  - LEAF_PEER_L3
+  tenant: Tenant_B
 vlan_interfaces:
 - name: Vlan4093
   description: MLAG_PEER_L3_PEERING
@@ -186,9 +240,9 @@ vlan_interfaces:
 - name: Vlan4094
   description: MLAG_PEER
   shutdown: false
+  ip_address: 10.255.252.4/31
   no_autostate: true
   mtu: 1500
-  ip_address: 10.255.252.4/31
 - name: Vlan110
   tenant: Tenant_A
   tags:
@@ -203,6 +257,31 @@ vlan_interfaces:
   shutdown: false
   description: 'MLAG_PEER_L3_iBGP: vrf Tenant_A_OP_Zone'
   vrf: Tenant_A_OP_Zone
+  mtu: 1500
+  ip_address: 10.255.251.4/31
+- name: Vlan210
+  tenant: Tenant_B
+  tags:
+  - opzone
+  description: Tenant_B_OP_Zone_1
+  shutdown: false
+  ip_address_virtual: 10.2.10.1/24
+  vrf: Tenant_B_OP_Zone
+- name: Vlan211
+  tenant: Tenant_B
+  tags:
+  - opzone
+  description: Tenant_B_OP_Zone_2
+  shutdown: true
+  mtu: 1560
+  ip_address_virtual: 10.2.11.1/24
+  vrf: Tenant_B_OP_Zone
+- name: Vlan3019
+  tenant: Tenant_B
+  type: underlay_peering
+  shutdown: false
+  description: 'MLAG_PEER_L3_iBGP: vrf Tenant_B_OP_Zone'
+  vrf: Tenant_B_OP_Zone
   mtu: 1500
   ip_address: 10.255.251.4/31
 port_channel_interfaces:
@@ -333,9 +412,15 @@ vxlan_interface:
         vni: 10110
       - id: 160
         vni: 55160
+      - id: 210
+        vni: 20210
+      - id: 211
+        vni: 20211
       vrfs:
       - name: Tenant_A_OP_Zone
         vni: 10
+      - name: Tenant_B_OP_Zone
+        vni: 20
 virtual_source_nat_vrfs:
 - name: Tenant_A_OP_Zone
   ip_address: 10.255.1.5
